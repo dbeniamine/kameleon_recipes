@@ -1,0 +1,50 @@
+#==============================================================================
+# vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
+#==============================================================================
+#
+# DESCRIPTION: <MY RECIPE DESCRIPTION>
+#
+#==============================================================================
+
+---
+extend: qemu/debian7-amd64.yaml
+
+global:
+    # You can see the base template `qemu/debian8-amd64.yaml.yaml` to know the
+    # variables that you can override
+  user_name: david
+  user_password: Ploum42Virt
+  hostname: dream7-virt-dev
+  qemu_memory_size: 4G
+  qemu_image_size: 20G
+  swap_file : /swapfile
+  swap_size : 1 #Size in GigaBits
+
+bootstrap:
+  - "@base"
+
+setup:
+  - "@base"
+  - configure_system:
+    - locales: POSIX C en_US fr_FR
+    - lang: en_US.UTF-8
+    - timezone: 'Europe/Paris'
+  - enable_checkpoint
+  - configure_keyboard:
+    - layout: "fr"
+  - disable_checkpoint
+  - install_software:
+    - packages: >
+       gnome-terminal lightdm i3 vim vim-gtk tmux build-essential r-base
+       linux-headers-amd64 encfs git libpam-mount libpam-encfs aptitude
+       schedtool cscope htop rsyslog strace linux-source gdb cmake hwloc
+       openssh-server
+  - install_desktop
+  - make_swap
+  - create_working_environment
+  - enable_checkpoint
+  - add_timestamp
+  - disable_checkpoint
+
+export:
+  - "@base"

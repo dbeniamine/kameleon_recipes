@@ -1,0 +1,73 @@
+- Clean_home:
+    - exec_in: rm -rf ~$$user_name/*
+- Create_tmp_directories:
+    - exec_in_user:
+        - $$user_name
+        - mkdir -p /home/$$user_name/Documents_tmp && mkdir -p /home/$$user_name/Documents_tmp
+
+# Copy the ssh_key for virtual images
+- ssh_key:
+    - exec_in_user:
+        - $$user_name
+        - mkdir -p /home/$$user_name/.ssh
+    - local2in:
+        - $$kameleon_cwd/../../files/id_rsa_virt
+        - /home/$$user_name/.ssh/id_rsa_virt
+    - local2in:
+        - $$kameleon_cwd/../../files/id_rsa_virt.pub
+        - /home/$$user_name/.ssh/id_rsa_virt.pub
+    - local2in:
+        - $$kameleon_cwd/../../files/ssh_config
+        - /home/$$user_name/.ssh/config
+    - exec_in: chown -R $$user_name:$$user_name /home/$$user_name/.ssh/
+    - exec_in_user:
+        - $$user_name
+        - chmod 700 ~/.ssh && chmod 600 ~/.ssh/*
+
+# Clone git repositories (config and scripts)
+- git-repo:
+    - clone_repo_in_user :
+        - $$user_name
+        - /home/$$user_name
+        - ssh://git@the-shire.dtdns.net/scripts.git
+
+    - clone_repo_in_user :
+        - $$user_name
+        - /home/$$user_name/
+        - ssh://git@the-shire.dtdns.net/conf.git
+
+# install configuration files
+- install_config:
+    - exec_in_user:
+        - $$user_name
+        - rm ~/.bashrc; cd ~/conf; ./install.sh -g -c ~/conf/ -i ~ -t
+    - exec_in: |
+        ln -sf ~$$user_name/.bashrc ~/.bashrc; ln -sf ~$$user_name/.bash.d ~/.bash.d
+    - exec_in: |
+        ln -sf ~$$user_name/.vimrc ~/.vimrc; ln -sf ~$$user_name/.vim ~/.vim
+
+#Copy files from host
+- copy_files:
+    - local2in_dir:
+        - /home/$$user_name/Work/Moca
+        - /home/$$user_name/Work/Moca
+    - local2in_dir:
+        - /home/$$user_name/Work/exp_HI
+        - /home/$$user_name/Work/exp_HI
+    - exec_in: chown -R $$user_name:$$user_name /home/$$user_name/Work/
+
+- fix_permissions:
+    -exec_in: chmod -R $$user_name:$$user_name /home/$$user_name
+
+# Create encfs dir
+#- Create_directories:
+#    - encfs_create_dir:
+#        - $$user_name
+#        - $$user_password
+#        - /home/$$user_name/.Documents
+#        - /home/$$user_name/Documents
+#          #- /home/$$user_name/Documents_tmp
+#
+
+# Easy unsecure root access
+- exec_in : echo -e "$$user_password\n$$user_password\n" | passwd

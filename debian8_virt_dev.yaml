@@ -1,0 +1,29 @@
+#==============================================================================
+# vim: softtabstop=2 shiftwidth=2 expandtab fenc=utf-8 cc=81 tw=80
+#==============================================================================
+#
+# DESCRIPTION: <MY RECIPE DESCRIPTION>
+#
+#==============================================================================
+
+---
+#extend: qemu/debian8-amd64.yaml
+extend: debian7_virt_dev.yaml
+
+global:
+    # You can see the base template `qemu/debian8-amd64.yaml.yaml` to know the
+    # variables that you can override
+  distrib: debian
+  release: jessie
+  arch: amd64
+  hostname: dream8-virt-dev
+
+bootstrap:
+  - "@base"
+
+setup:
+  - add_wheezy_sources
+  - "@base"
+
+export:
+  - "@base"

@@ -1,0 +1,4 @@
+host *
+    IdentityFile ~/.ssh/id_rsa_virt
+    UserKnownHostsFile /dev/null
+    StrictHostKeyChecking no
