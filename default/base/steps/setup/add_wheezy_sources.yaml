@@ -10,12 +10,12 @@
         - /etc/apt/preferences.d/wheezy
         - |
             Package: *
-            Pin: release o=Debian,a=testing
+            Pin: release o=Debian,n=jessie
             Pin-Priority: 900
 
             default
             Package: *
-            Pin: release o=Debian,a=stable
+            Pin: release o=Debian,n=wheezy
             Pin-Priority: 100
 
 - update_repositories:

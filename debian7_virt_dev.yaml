@@ -7,16 +7,16 @@
 #==============================================================================
 
 ---
-extend: qemu/debian7-amd64.yaml
+extend: default/qemu/debian7.yaml
 
 global:
-    # You can see the base template `qemu/debian8-amd64.yaml.yaml` to know the
+    # You can see the base template `default/qemu/debian7.yaml` to know the
     # variables that you can override
   user_name: david
   user_password: Ploum42Virt
   hostname: dream7-virt-dev
   qemu_memory_size: 4G
-  qemu_image_size: 20G
+  qemu_image_size: 5G
   swap_file : /swapfile
   swap_size : 1 #Size in GigaBits
 

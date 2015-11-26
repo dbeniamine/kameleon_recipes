@@ -7,11 +7,11 @@
 #==============================================================================
 
 ---
-#extend: qemu/debian8-amd64.yaml
+extend: default/qemu/debian8.yaml
 extend: debian7_virt_dev.yaml
 
 global:
-    # You can see the base template `qemu/debian8-amd64.yaml.yaml` to know the
+    # You can see the base template `default/qemu/debian8.yaml` to know the
     # variables that you can override
   distrib: debian
   release: jessie

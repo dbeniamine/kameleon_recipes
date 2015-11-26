@@ -1,10 +1,11 @@
 #RECIPE=$(wildcard *.yaml)
 RECIPE=debian8_virt_dev.yaml
 MEM=-m 4G
-CPU=-smp cpus=2
+CPU=-smp cpus=4
 #SSH=-redir tcp:2022::22 -display none
 GRAB=""-alt-grab
 VGA="" #-vga std
+DEBUG=-s
 DEPS=$(shell  find . -name "*.yaml" | grep -v build)
 IMG_FILE=$(RECIPE:.yaml=.qcow2)
 IMG=build/$(RECIPE:.yaml=)/$(IMG_FILE)
@@ -14,12 +15,12 @@ VIRT_HOME=$(VIRT_ROOT)/home/david
 all: start
 
 $(IMG): $(DEPS)
-	kameleon build $(RECIPE) --checkpoint #--cache
+	kameleon build $(RECIPE) #--checkpoint --cache
 	cp $(IMG) $(IMG).bak
 
 # Start the kvm
 start: $(IMG)
-	kvm $(GRAB) -hda $(IMG) $(MEM)  $(CPU) $(SSH) &
+	kvm $(GRAB) -hda $(IMG) $(MEM)  $(CPU) $(SSH) $(DEBUG) &
 
 startonly:
 	touch $(IMG)

@@ -1,13 +1,16 @@
-- boot_timeout: 30
-- shutdown_timeout: 10
+- boot_timeout: 100
+- shutdown_timeout: 100
 
 - start_qemu_vm:
   - on_checkpoint: redo
   - check_cmd_local: qemu-system-$$qemu_arch
   - exec_local: echo "Starting qemu..."
   - exec_local: |
-      if [ $$qemu_enable_kvm = true ]; then
-        ENABLE_KVM="-enable-kvm"
+      if [ "$$qemu_enable_kvm" = "true" ]; then
+        ENABLE_KVM="-enable-kvm -cpu host"
+        BOOT_TIMEOUT=$$boot_timeout
+      else
+        BOOT_TIMEOUT=$(($$boot_timeout*2))
       fi
   - exec_local: |
         if [ -f "vm_state_to_load.txt" ]
@@ -17,25 +20,29 @@
             rm -f vm_state_to_load.txt
         fi
   - exec_local: |
+        # Find empty VNC port
+        VNC_PORT=$(( $(__find_free_port 5900 5910) - 5900 ))
+        echo "VNC port: $VNC_PORT"
+  - exec_local: |
         qemu-system-$$qemu_arch  \
           $ENABLE_KVM \
           -cdrom $$kameleon_cwd/boot2kameleon.iso \
           -drive file="$$qemu_image_disk",cache=unsafe,media=disk,if=virtio,id=drive0 \
           -smp $${qemu_cpu} \
-          -cpu host \
           -m $$qemu_memory_size \
           -rtc base=localtime \
           -net nic,model=virtio -net user \
-          -redir tcp:$${qemu_ssh_port}::22 \
+          -redir tcp:${SSH_FWD_PORT}::22 \
           -monitor unix:$$qemu_monitor_socket,server,nowait \
           -pidfile $$qemu_pidfile \
-          -daemonize -vnc :1 $LOADVM
+          -daemonize -vnc :$VNC_PORT $LOADVM
   - exec_local: |
-        NEXT_WAIT_TIME=0
         SSH_AVAILABLE=0
-        until ssh-keyscan -T 1 -4 -p $$qemu_ssh_port localhost  2>&1 | grep -e ssh-rsa -e ssh-dsa &> /dev/null && SSH_AVAILABLE=1 || [ $NEXT_WAIT_TIME -eq $$boot_timeout ];
+        TIMEOUT=$(( $(date +%s) + $BOOT_TIMEOUT ))
+        until timeout 5 ssh -q -F $$ssh_config_file -o ConnectionAttempts=1  $${kameleon_recipe_name} -t true && SSH_AVAILABLE=1 || [ $(date +%s) -gt $TIMEOUT ];
         do
-          echo -en "\rWaiting for SSH to become available for out_context...($(( $$boot_timeout - 1 - NEXT_WAIT_TIME++ ))s)"
+          echo -en "\rWaiting for SSH to become available for out_context...($(( TIMEOUT - $(date +%s) ))s)"
+          sleep 1
         done
         echo ""
   - rescue:
@@ -46,6 +53,7 @@
   - on_checkpoint: redo
   - check_cmd_local: socat
   - on_setup_clean:
+    - exec_in: echo sync...; sync
     - exec_local: |
         if [ -f $$qemu_pidfile ]; then
           _QEMU_PID=$(cat $$qemu_pidfile)
