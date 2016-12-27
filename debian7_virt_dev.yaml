@@ -38,7 +38,7 @@ setup:
        gnome-terminal lightdm i3 vim vim-gtk tmux build-essential r-base
        linux-headers-amd64 encfs git libpam-mount libpam-encfs aptitude
        schedtool cscope htop rsyslog strace linux-source gdb cmake hwloc
-       openssh-server
+       openssh-server libnuma-dev
   - install_desktop
   - make_swap
   - create_working_environment

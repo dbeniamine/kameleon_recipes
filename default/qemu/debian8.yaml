@@ -6,26 +6,23 @@
 #
 #==============================================================================
 ---
-extend: debian7.yaml
+extend: ../chroot/debian8.yaml
+checkpoint: qemu.yaml
 
+# Global variables use by Kameleon engine and the steps
 global:
-  # Distribution
-  release: jessie
+  include: qemu_options.yaml
 
-  bootstrap_packages: >
-    bsdutils ca-certificates locales man-db less libui-dialog-perl dialog
-    isc-dhcp-client ifupdown iptables iputils-ping iproute2 netbase net-tools
-    psmisc openssh-server acpid acpi-support-base sysvinit systemd systemd-sysv
-    linux-image-$$kernel_arch pciutils
-
-  setup_packages: >
-    sudo vim bash-completion curl resolvconf extlinux bzip2 dialog
-
+# Bootstrap the new system and create the 'in_context'
 bootstrap:
-  - "@base"
+  - prepare_appliance
+  - start_qemu
 
+# Install and configuration steps
 setup:
+  - enable_checkpoint
   - "@base"
 
+# Export the generated appliance in the format of your choice
 export:
   - "@base"

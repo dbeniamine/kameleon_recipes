@@ -3,8 +3,9 @@ RECIPE=debian8_virt_dev.yaml
 MEM=-m 4G
 CPU=-smp cpus=4
 #SSH=-redir tcp:2022::22 -display none
-GRAB=""-alt-grab
+GRAB=-alt-grab
 VGA="" #-vga std
+# NET=-net nic -net tap,ifname=tap0,script=no,downscript=no
 DEBUG=-s
 DEPS=$(shell  find . -name "*.yaml" | grep -v build)
 IMG_FILE=$(RECIPE:.yaml=.qcow2)
@@ -20,7 +21,7 @@ $(IMG): $(DEPS)
 
 # Start the kvm
 start: $(IMG)
-	kvm $(GRAB) -hda $(IMG) $(MEM)  $(CPU) $(SSH) $(DEBUG) &
+	kvm $(GRAB) -hda $(IMG) $(MEM)  $(CPU) $(SSH) $(NET) $(DEBUG) &
 
 startonly:
 	touch $(IMG)

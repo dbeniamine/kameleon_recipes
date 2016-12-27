@@ -1,3 +1,0 @@
-- setup_lightdm:
-    - exec_in: sed 's/^\#*\(greeter-hide-users=\).*$/\1false/' /etc/lightdm/lightdm.conf
-

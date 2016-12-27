@@ -1,6 +1,0 @@
-# Add Timestamp
-- timestamping:
-    - exec_out: echo "Image build on:" >timestap; date +%s >> timestamp
-    - out2in:
-        - timestamp
-        - /timestamp
